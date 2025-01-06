@@ -20,9 +20,6 @@ void setup()
 
     // Draw the Mandelbrot set
     drawMandelbrot();
-
-    drawCoordinateAxes();
-
 }
 
 void loop()
@@ -67,18 +64,19 @@ void drawCoordinateAxes() {
     display.drawLine(imaginaryAxisX, 0, imaginaryAxisX, height, TFT_WHITE);  // Draw vertical axis (imaginary axis)
 
     // Labels for 1, -1, i, and -i
-    // Real axis labels
-    display.setCursor(imaginaryAxisX + 5, realAxisY - 15);  // Position label for 1
+    // Real axis labels (adjust position further from the origin)
+    display.setCursor(imaginaryAxisX + 50, realAxisY - 15);  // Position label for 1
     display.print("1");
-    display.setCursor(imaginaryAxisX - 25, realAxisY - 15);  // Position label for -1
+    display.setCursor(imaginaryAxisX - 50, realAxisY - 15);  // Position label for -1
     display.print("-1");
 
-    // Imaginary axis labels
-    display.setCursor(imaginaryAxisX + 5, 5);  // Position label for i
+    // Imaginary axis labels (position i and -i close to the axis with a small offset)
+    display.setCursor(imaginaryAxisX + 5, realAxisY - 40);  // Position label for i (above the origin)
     display.print("i");
-    display.setCursor(imaginaryAxisX + 5, height - 15);  // Position label for -i
+    display.setCursor(imaginaryAxisX + 5, realAxisY + 25);  // Position label for -i (below the origin)
     display.print("-i");
 }
+
 
 void drawMandelbrot()
 {
