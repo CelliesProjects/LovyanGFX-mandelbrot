@@ -1,63 +1,63 @@
+#include <LGFX_AUTODETECT.hpp> 
 #include <LovyanGFX.hpp>
-#include "cartesianwindow.h"
 
-// Create an instance of the LovyanGFX display
+void drawMandelbrot();
+
+// Create an instance of the display object based on your specific platform define
 LGFX display;
 
-// Create the CartesianWindow and link it to the display
-CartesianWindow cartesianWindow(display);
+void setup() {
+    // Initialize the display
+    display.init();
+    display.setRotation(1); // Adjust rotation as needed
 
-float mapf(float x, float inMin, float inMax, float outMin, float outMax)
-{
-    return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+    // Set background color to black
+    display.fillScreen(TFT_BLACK);
+
+    // Draw the Mandelbrot set
+    drawMandelbrot();
 }
 
-void drawMandelbrot(CartesianWindow &cartesianWindow, float xMin, float xMax, float yMin, float yMax, int maxIterations)
-{
-    LGFX &display = cartesianWindow.getDisplay();
+void loop() {
+    // Nothing to update in the loop for static display
+}
 
-    for (int px = 0; px < display.width(); px++)
-    {
-        for (int py = 0; py < display.height(); py++)
-        {
-            // Map screen pixel coordinates to the Cartesian plane
-            float x0 = mapf(px, 0, display.width(), xMin, xMax);
-            float y0 = mapf(py, 0, display.height(), yMin, yMax);
+void drawMandelbrot() {
+    int width = display.width();
+    int height = display.height();
 
-            // Mandelbrot iteration
-            float x = 0.0, y = 0.0;
+    // Mandelbrot parameters (adjust as needed)
+    float xmin = -2.5;
+    float xmax = 1.0;
+    float ymin = -1.5;
+    float ymax = 1.5;
+    int maxIterations = 100;
+
+    // Calculate scale factors for the Cartesian to display coordinate transformation
+    float scaleX = (xmax - xmin) / width;
+    float scaleY = (ymax - ymin) / height;
+
+    // Loop through each pixel on the display
+    for (int py = 0; py < height; py++) {
+        for (int px = 0; px < width; px++) {
+            // Map the pixel coordinates to the complex plane
+            float x0 = xmin + px * scaleX;
+            float y0 = ymin + py * scaleY;
+            float x = 0.0;
+            float y = 0.0;
             int iteration = 0;
 
-            while (x * x + y * y <= 4.0 && iteration < maxIterations)
-            {
-                float xTemp = x * x - y * y + x0;
-                y = 2.0 * x * y + y0;
-                x = xTemp;
+            // Mandelbrot iteration
+            while (x * x + y * y <= 4 && iteration < maxIterations) {
+                float xtemp = x * x - y * y + x0;
+                y = 2 * x * y + y0;
+                x = xtemp;
                 iteration++;
             }
 
-            // Determine color
-            uint16_t color = (iteration == maxIterations) ? TFT_YELLOW
-                             : display.color565((iteration * 9) % 256, 
-                                                (iteration * 5) % 256, 
-                                                (iteration * 3) % 256);
-
-            cartesianWindow.drawCartesianPixel(x0, y0, color);
+            // Color the pixel based on the number of iterations
+            uint16_t color = (iteration == maxIterations) ? TFT_BLACK : map(iteration, 0, maxIterations * 7, 0, 255);
+            display.drawPixel(px, py, color);
         }
     }
 }
-
-void setup()
-{
-    display.init();
-    display.setRotation(1);
-
-    float xMin = -1.5, xMax = 1.0;
-    float yMin = -1.0, yMax = 1.0;
-    int maxIterations = 500;
-
-    cartesianWindow.setWindow(xMin, yMin, xMax - xMin, yMax - yMin);
-    drawMandelbrot(cartesianWindow, xMin, xMax, yMin, yMax, maxIterations);
-}
-
-void loop() {}
