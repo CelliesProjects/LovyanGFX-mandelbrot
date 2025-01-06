@@ -1,34 +1,38 @@
 #include "cartesianwindow.h"
 
-// Set up the Cartesian coordinate system
-void CartesianWindow::setWindow(float x, float y, float width, float height)
-{
-    _originX = x;                         // Cartesian origin X
-    _originY = y;                         // Cartesian origin Y
-    _scaleX = width / _display.width();   // Scale factor for X
-    _scaleY = height / _display.height(); // Scale factor for Y
+// Constructor
+CartesianWindow::CartesianWindow(LGFX &display) : _display(display) {
+    _xMin = _yMin = 0;
+    _xRange = _yRange = 1;
 }
 
-// Convert Cartesian coordinates to pixel coordinates
-void CartesianWindow::getPixelCoordinates(float x, float y, int16_t &px, int16_t &py) const
-{
-    px = (x - _originX) / _scaleX; // Map Cartesian X to pixel X
-    py = (y - _originY) / _scaleY; // Map Cartesian Y to pixel Y
+void CartesianWindow::setWindow(float xMin, float yMin, float xRange, float yRange) {
+    _xMin = xMin;
+    _yMin = yMin;
+    _xRange = xRange;
+    _yRange = yRange;
 
-    // Flip Y-axis to match Cartesian convention
-    py = _display.height() - py - 1;
+    _displayWidth = _display.width();
+    _displayHeight = _display.height();
 }
 
-// Draw a pixel in Cartesian coordinates
-void CartesianWindow::drawCartesianPixel(float x, float y, uint16_t color)
-{
+void CartesianWindow::drawCartesianPixel(float x, float y, uint16_t color) {
     int16_t px, py;
     getPixelCoordinates(x, y, px, py);
 
-    // Draw the pixel if within screen bounds
-    if (px >= 0 && px < _display.width() && py >= 0 && py < _display.height())
-    {
+    if (px >= 0 && px < _displayWidth && py >= 0 && py < _displayHeight) {
         _display.drawPixel(px, py, color);
     }
 }
 
+void CartesianWindow::getPixelCoordinates(float x, float y, int16_t &px, int16_t &py) {
+    px = (int16_t)(_displayWidth * (x - _xMin) / _xRange);
+    py = (int16_t)(_displayHeight * (y - _yMin) / _yRange);
+
+    // Flip Y-axis for Cartesian origin at bottom-left
+    py = _displayHeight - py;
+}
+
+LGFX &CartesianWindow::getDisplay() {
+    return _display;
+}
