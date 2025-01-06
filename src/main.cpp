@@ -1,10 +1,9 @@
 #include <LGFX_AUTODETECT.hpp>
 #include <LovyanGFX.hpp>
 
-void drawMandelbrot();
-void drawCoordinateAxes();
+void drawMandelbrot(float xmin, float xmax, float ymin, float ymax, int maxIterations);
+void drawCoordinateAxes(float xmin, float xmax, float ymin, float ymax);
 
-// Create an instance of the display object based on your specific platform define
 LGFX display;
 
 void setup()
@@ -16,10 +15,18 @@ void setup()
     // Set background color to black
     display.fillScreen(TFT_BLACK);
 
-    drawCoordinateAxes();
+    // Mandelbrot parameters
+    float xmin = -2.5;
+    float xmax = 1.0;
+    float ymin = -1.5;
+    float ymax = 1.5;
+
+    // Draw coordinate axes
+    drawCoordinateAxes(xmin, xmax, ymin, ymax);
 
     // Draw the Mandelbrot set
-    drawMandelbrot();
+    int maxIterations = 100;
+    drawMandelbrot(xmin, xmax, ymin, ymax, maxIterations);
 }
 
 void loop()
@@ -41,30 +48,26 @@ uint16_t getColorFromIteration(int iteration, int maxIterations)
     return (red >> 3) << 11 | (green >> 2) << 5 | (blue >> 3);
 }
 
-void drawCoordinateAxes() {
+void drawCoordinateAxes(float xmin, float xmax, float ymin, float ymax)
+{
     int width = display.width();
     int height = display.height();
-
-    // Mandelbrot parameters (adjust as needed)
-    float xmin = -2.5;
-    float xmax = 1.0;
-    float ymin = -1.5;
-    float ymax = 1.5;
 
     // Calculate scale factors for the Cartesian to display coordinate transformation
     float scaleX = (xmax - xmin) / width;
     float scaleY = (ymax - ymin) / height;
 
     // Draw the X axis (real axis)
-    int realAxisY = height / 2;
-    display.drawLine(0, realAxisY, width, realAxisY, TFT_WHITE);  // Draw horizontal axis (real axis)
+    int realAxisY = (0 - ymin) / scaleY; // Map y=0 to display coordinates
+    display.drawLine(0, realAxisY, width, realAxisY, TFT_DARKGRAY);  // Draw horizontal axis (real axis)
 
     // Draw the Y axis (imaginary axis)
-    int imaginaryAxisX = width / 2;
-    display.drawLine(imaginaryAxisX, 0, imaginaryAxisX, height, TFT_WHITE);  // Draw vertical axis (imaginary axis)
+    int imaginaryAxisX = (0 - xmin) / scaleX; // Map x=0 to display coordinates
+    display.drawLine(imaginaryAxisX, 0, imaginaryAxisX, height, TFT_DARKGRAY);  // Draw vertical axis (imaginary axis)
 
     // Labels for 1, -1, i, and -i
     // Real axis labels (adjust position further from the origin)
+    display.setTextColor(TFT_DARKGRAY);
     display.setCursor(imaginaryAxisX + 50, realAxisY - 15);  // Position label for 1
     display.print("1");
     display.setCursor(imaginaryAxisX - 50, realAxisY - 15);  // Position label for -1
@@ -77,18 +80,10 @@ void drawCoordinateAxes() {
     display.print("-i");
 }
 
-
-void drawMandelbrot()
+void drawMandelbrot(float xmin, float xmax, float ymin, float ymax, int maxIterations)
 {
     int width = display.width();
     int height = display.height();
-
-    // Mandelbrot parameters (adjust as needed)
-    float xmin = -2.5;
-    float xmax = 1.0;
-    float ymin = -1.5;
-    float ymax = 1.5;
-    int maxIterations = 100;
 
     // Calculate scale factors for the Cartesian to display coordinate transformation
     float scaleX = (xmax - xmin) / width;
