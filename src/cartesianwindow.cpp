@@ -1,38 +1,29 @@
 #include "cartesianwindow.h"
 
-// Constructor
-CartesianWindow::CartesianWindow(LGFX &display) : _display(display) {
-    _xMin = _yMin = 0;
-    _xRange = _yRange = 1;
+void CartesianWindow::setWindow(float x, float y, float width, float height)
+{
+    _originX = x;
+    _originY = y;
+    _scaleX = width / _display.width();
+    _scaleY = height / _display.height();
 }
 
-void CartesianWindow::setWindow(float xMin, float yMin, float xRange, float yRange) {
-    _xMin = xMin;
-    _yMin = yMin;
-    _xRange = xRange;
-    _yRange = yRange;
+void CartesianWindow::getPixelCoordinates(float x, float y, int16_t &px, int16_t &py) const
+{
+    px = static_cast<int16_t>((x - _originX) / _scaleX);
+    py = static_cast<int16_t>((y - _originY) / _scaleY);
 
-    _displayWidth = _display.width();
-    _displayHeight = _display.height();
+    // Flip Y-axis to match Cartesian convention
+    py = _display.height() - py - 1;
 }
 
-void CartesianWindow::drawCartesianPixel(float x, float y, uint16_t color) {
+void CartesianWindow::drawCartesianPixel(float x, float y, uint16_t color)
+{
     int16_t px, py;
     getPixelCoordinates(x, y, px, py);
 
-    if (px >= 0 && px < _displayWidth && py >= 0 && py < _displayHeight) {
+    if (px >= 0 && px < _display.width() && py >= 0 && py < _display.height())
+    {
         _display.drawPixel(px, py, color);
     }
-}
-
-void CartesianWindow::getPixelCoordinates(float x, float y, int16_t &px, int16_t &py) {
-    px = (int16_t)(_displayWidth * (x - _xMin) / _xRange);
-    py = (int16_t)(_displayHeight * (y - _yMin) / _yRange);
-
-    // Flip Y-axis for Cartesian origin at bottom-left
-    py = _displayHeight - py;
-}
-
-LGFX &CartesianWindow::getDisplay() {
-    return _display;
 }
