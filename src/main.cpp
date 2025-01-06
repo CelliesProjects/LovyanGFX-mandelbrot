@@ -14,19 +14,18 @@ void setup()
 
     // Set background color to black
     display.fillScreen(TFT_BLACK);
+    display.setTextColor(TFT_DARKGRAY);
 
     // Mandelbrot parameters
     float xmin = -2.5;
     float xmax = 1.0;
     float ymin = -1.5;
     float ymax = 1.5;
+    int maxIterations = 100;
 
-    // Draw coordinate axes
+    drawMandelbrot(xmin, xmax, ymin, ymax, maxIterations);
     drawCoordinateAxes(xmin, xmax, ymin, ymax);
 
-    // Draw the Mandelbrot set
-    int maxIterations = 100;
-    drawMandelbrot(xmin, xmax, ymin, ymax, maxIterations);
 }
 
 void loop()
@@ -58,52 +57,32 @@ void drawCoordinateAxes(float xmin, float xmax, float ymin, float ymax)
     float scaleY = (ymax - ymin) / height;
 
     // Draw the X axis (real axis)
-    int realAxisY = (0 - ymin) / scaleY;                         // Map y=0 to display coordinates
-    display.drawLine(0, realAxisY, width, realAxisY, TFT_WHITE); // Draw horizontal axis (real axis)
+    int realAxisY = (0 - ymin) / scaleY; // Map y=0 to display coordinates
+    display.drawLine(0, realAxisY, width, realAxisY, TFT_DARKGRAY);  // Draw horizontal axis (real axis)
 
     // Draw the Y axis (imaginary axis)
-    int imaginaryAxisX = (0 - xmin) / scaleX;                               // Map x=0 to display coordinates
-    display.drawLine(imaginaryAxisX, 0, imaginaryAxisX, height, TFT_WHITE); // Draw vertical axis (imaginary axis)
+    int imaginaryAxisX = (0 - xmin) / scaleX; // Map x=0 to display coordinates
+    display.drawLine(imaginaryAxisX, 0, imaginaryAxisX, height, TFT_DARKGRAY);  // Draw vertical axis (imaginary axis)
 
     // Draw tick marks on the real axis
     for (float x = xmin; x <= xmax; x += 0.5)
     {
         int tickX = (x - xmin) / scaleX;
-        display.drawLine(tickX, realAxisY - 5, tickX, realAxisY + 5, TFT_WHITE);
+        display.drawLine(tickX, realAxisY - 5, tickX, realAxisY + 5, TFT_DARKGRAY);
 
         if (x != 0) // Avoid overlapping the origin
-        {
-            display.setCursor(tickX - 10, realAxisY + 10);
-            display.print(x, 2); // Print tick value with 2 decimal places
-        }
+            display.drawFloat(x, 2, tickX - 15, realAxisY + 10, &DejaVu9);
     }
 
     // Draw tick marks on the imaginary axis
     for (float y = ymin; y <= ymax; y += 0.5)
     {
         int tickY = (y - ymin) / scaleY;
-        display.drawLine(imaginaryAxisX - 5, tickY, imaginaryAxisX + 5, tickY, TFT_WHITE);
+        display.drawLine(imaginaryAxisX - 5, tickY, imaginaryAxisX + 5, tickY, TFT_DARKGRAY);
 
         if (y != 0) // Avoid overlapping the origin
-        {
-            display.setCursor(imaginaryAxisX + 10, tickY - 5);
-            display.print(y, 2); // Print tick value with 2 decimal places
-        }
+            display.drawFloat(y, 2, imaginaryAxisX + 10, tickY - 5, &DejaVu9);
     }
-    /*
-        // Labels for 1, -1, i, and -i
-        // Real axis labels (adjust position further from the origin)
-        display.setCursor(imaginaryAxisX + 50, realAxisY - 15);  // Position label for 1
-        display.print("1");
-        display.setCursor(imaginaryAxisX - 50, realAxisY - 15);  // Position label for -1
-        display.print("-1");
-
-        // Imaginary axis labels (position i and -i close to the axis with a small offset)
-        display.setCursor(imaginaryAxisX + 5, realAxisY - 40);  // Position label for i (above the origin)
-        display.print("i");
-        display.setCursor(imaginaryAxisX + 5, realAxisY + 25);  // Position label for -i (below the origin)
-        display.print("-i");
-    */
 }
 
 void drawMandelbrot(float xmin, float xmax, float ymin, float ymax, int maxIterations)
