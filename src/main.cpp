@@ -2,17 +2,17 @@
 #include <LovyanGFX.hpp>
 
 void drawMandelbrot(float xmin, float xmax, float ymin, float ymax, int maxIterations);
-void drawCoordinateAxes(float xmin, float xmax, float ymin, float ymax);
+void drawCoordinateAxes(float xmin, float xmax, float ymin, float ymax, float ticks);
 
 LGFX display;
 
+const int32_t BTN_A = GPIO_NUM_39;
+
 void setup()
 {
-    // Initialize the display
     display.init();
     display.setRotation(1); // Adjust rotation as needed
 
-    // Set background color to black
     display.fillScreen(TFT_BLACK);
     display.setTextColor(TFT_DARKGRAY);
 
@@ -24,8 +24,47 @@ void setup()
     int maxIterations = 100;
 
     drawMandelbrot(xmin, xmax, ymin, ymax, maxIterations);
-    drawCoordinateAxes(xmin, xmax, ymin, ymax);
+    drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.5);
 
+    pinMode(BTN_A, INPUT_PULLUP);
+
+    while (digitalRead(BTN_A))
+        delay(10);
+
+    xmin = -1.5;
+    xmax = 0.75;
+    ymin = 0.0;
+    ymax = 1.93;
+
+    display.fillScreen(TFT_BLACK);
+    drawMandelbrot(xmin, xmax, ymin, ymax, maxIterations);
+    drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.5);
+
+
+    while (digitalRead(BTN_A))
+        delay(10);
+
+    xmin = -0.5;
+    xmax = 0.5;
+    ymin = 0.5;
+    ymax = 1.36;
+
+    display.fillScreen(TFT_BLACK);
+    drawMandelbrot(xmin, xmax, ymin, ymax, maxIterations);
+    drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.25);
+
+
+    while (digitalRead(BTN_A))
+        delay(10);
+
+    xmin = -0.25;
+    xmax = 0.15;
+    ymin = 0.75;
+    ymax = 1.09;
+
+    display.fillScreen(TFT_BLACK);
+    drawMandelbrot(xmin, xmax, ymin, ymax, maxIterations);
+    drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.25);    
 }
 
 void loop()
@@ -47,7 +86,7 @@ uint16_t getColorFromIteration(int iteration, int maxIterations)
     return (red >> 3) << 11 | (green >> 2) << 5 | (blue >> 3);
 }
 
-void drawCoordinateAxes(float xmin, float xmax, float ymin, float ymax)
+void drawCoordinateAxes(float xmin, float xmax, float ymin, float ymax, float ticks)
 {
     int width = display.width();
     int height = display.height();
@@ -56,16 +95,14 @@ void drawCoordinateAxes(float xmin, float xmax, float ymin, float ymax)
     float scaleX = (xmax - xmin) / width;
     float scaleY = (ymax - ymin) / height;
 
-    // Draw the X axis (real axis)
-    int realAxisY = (0 - ymin) / scaleY; // Map y=0 to display coordinates
-    display.drawLine(0, realAxisY, width, realAxisY, TFT_DARKGRAY);  // Draw horizontal axis (real axis)
+    int realAxisY = (0 - ymin) / scaleY;
+    display.drawLine(0, realAxisY, width, realAxisY, TFT_DARKGRAY); // Draw horizontal axis (real axis)
 
-    // Draw the Y axis (imaginary axis)
-    int imaginaryAxisX = (0 - xmin) / scaleX; // Map x=0 to display coordinates
-    display.drawLine(imaginaryAxisX, 0, imaginaryAxisX, height, TFT_DARKGRAY);  // Draw vertical axis (imaginary axis)
+    int imaginaryAxisX = (0 - xmin) / scaleX;
+    display.drawLine(imaginaryAxisX, 0, imaginaryAxisX, height, TFT_DARKGRAY); // Draw vertical axis (imaginary axis)
 
     // Draw tick marks on the real axis
-    for (float x = xmin; x <= xmax; x += 0.5)
+    for (float x = xmin; x <= xmax; x += ticks)
     {
         int tickX = (x - xmin) / scaleX;
         display.drawLine(tickX, realAxisY - 5, tickX, realAxisY + 5, TFT_DARKGRAY);
@@ -75,7 +112,7 @@ void drawCoordinateAxes(float xmin, float xmax, float ymin, float ymax)
     }
 
     // Draw tick marks on the imaginary axis
-    for (float y = ymin; y <= ymax; y += 0.5)
+    for (float y = ymin; y <= ymax; y += ticks)
     {
         int tickY = (y - ymin) / scaleY;
         display.drawLine(imaginaryAxisX - 5, tickY, imaginaryAxisX + 5, tickY, TFT_DARKGRAY);
