@@ -1,9 +1,12 @@
 #include <LGFX_AUTODETECT.hpp>
 #include <LovyanGFX.hpp>
 
+// Function declarations
 void drawMandelbrot(float xmin, float xmax, float ymin, float ymax, int maxIterations);
 void drawCoordinateAxes(float xmin, float xmax, float ymin, float ymax, float ticks);
+void displayMandelbrot(float xmin, float xmax, float ymin, float ymax, int maxIterations, float ticks);
 
+// Global objects
 LGFX display;
 
 const int32_t BTN_A = GPIO_NUM_39;
@@ -13,63 +16,30 @@ void setup()
     display.init();
     display.setRotation(1); // Adjust rotation as needed
 
-    display.fillScreen(TFT_BLACK);
-    display.setTextColor(TFT_DARKGRAY);
-
-    // Mandelbrot parameters
-    float xmin = -2.5;
-    float xmax = 1.0;
-    float ymin = -1.5;
-    float ymax = 1.5;
-    int maxIterations = 100;
-
-    drawMandelbrot(xmin, xmax, ymin, ymax, maxIterations);
-    drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.5);
-
     pinMode(BTN_A, INPUT_PULLUP);
 
-    while (digitalRead(BTN_A))
-        delay(10);
-
-    xmin = -1.5;
-    xmax = 0.75;
-    ymin = 0.0;
-    ymax = 1.93;
-
-    display.fillScreen(TFT_BLACK);
-    drawMandelbrot(xmin, xmax, ymin, ymax, maxIterations);
-    drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.5);
-
-
-    while (digitalRead(BTN_A))
-        delay(10);
-
-    xmin = -0.5;
-    xmax = 0.5;
-    ymin = 0.5;
-    ymax = 1.36;
-
-    display.fillScreen(TFT_BLACK);
-    drawMandelbrot(xmin, xmax, ymin, ymax, maxIterations);
-    drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.25);
-
-
-    while (digitalRead(BTN_A))
-        delay(10);
-
-    xmin = -0.25;
-    xmax = 0.15;
-    ymin = 0.75;
-    ymax = 1.09;
-
-    display.fillScreen(TFT_BLACK);
-    drawMandelbrot(xmin, xmax, ymin, ymax, maxIterations);
-    drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.25);    
+    // Initial Mandelbrot parameters and zooms
+    displayMandelbrot(-2.5, 1.0, -1.5, 1.5, 100, 0.5);
+    displayMandelbrot(-1.5, 0.75, 0.0, 1.93, 100, 0.5);
+    displayMandelbrot(-0.5, 0.5, 0.5, 1.36, 100, 0.25);
+    displayMandelbrot(-0.25, 0.15, 0.75, 1.09, 100, 0.25);
 }
 
 void loop()
 {
     // Nothing to update in the loop for static display
+}
+
+// Utility function to map Mandelbrot parameters, draw, and wait for input
+void displayMandelbrot(float xmin, float xmax, float ymin, float ymax, int maxIterations, float ticks)
+{
+    display.fillScreen(TFT_BLACK);             // Clear the screen
+    drawMandelbrot(xmin, xmax, ymin, ymax, maxIterations);
+    drawCoordinateAxes(xmin, xmax, ymin, ymax, ticks);
+
+    // Wait for button press
+    while (digitalRead(BTN_A))
+        delay(10);
 }
 
 uint16_t getColorFromIteration(int iteration, int maxIterations)
