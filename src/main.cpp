@@ -37,7 +37,7 @@ void loop()
     drawMandelbrot(xmin, xmax, ymin, ymax, 300);
     drawCoordinateAxes(xmin, xmax, ymin, ymax, 1);
     showZoomedArea(-0.1, 0.95, 5, xmin, xmax, ymin, ymax);
-    saveScreenshot("/mandelbrot.bmp");
+    //saveScreenshot("/mandelbrot.bmp");
     waitForButton(BTN_A);
 
     display.fillScreen(TFT_BLACK);
