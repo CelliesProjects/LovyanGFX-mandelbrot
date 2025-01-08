@@ -34,41 +34,41 @@ void loop()
     float ymax = 1.5;
 
     display.fillScreen(TFT_BLACK);
-    drawMandelbrot(xmin, xmax, ymin, ymax, 100);
+    drawMandelbrot(xmin, xmax, ymin, ymax, 300);
     drawCoordinateAxes(xmin, xmax, ymin, ymax, 1);
     showZoomedArea(-0.1, 0.95, 5, xmin, xmax, ymin, ymax);
     waitForButton(BTN_A);
 
     display.fillScreen(TFT_BLACK);
     setCoordinates(-0.1, 0.95, 5, xmin, xmax, ymin, ymax);
-    drawMandelbrot(xmin, xmax, ymin, ymax, 100);
+    drawMandelbrot(xmin, xmax, ymin, ymax, 300);
     drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.1);
     showZoomedArea(-0.1, 0.92, 8, xmin, xmax, ymin, ymax);
     waitForButton(BTN_A);
 
     display.fillScreen(TFT_BLACK);
     setCoordinates(-0.1, 0.95, 8, xmin, xmax, ymin, ymax);
-    drawMandelbrot(xmin, xmax, ymin, ymax, 100);
+    drawMandelbrot(xmin, xmax, ymin, ymax, 300);
     drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.1);
     showZoomedArea(-0.102, 0.924, 12, xmin, xmax, ymin, ymax);
     waitForButton(BTN_A);
 
     display.fillScreen(TFT_BLACK);
     setCoordinates(-0.102, 0.924, 12, xmin, xmax, ymin, ymax);
-    drawMandelbrot(xmin, xmax, ymin, ymax, 200);
-    drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.1);
-    showZoomedArea(-0.1027, 0.924, 14, xmin, xmax, ymin, ymax);
-    waitForButton(BTN_A);
-
-    display.fillScreen(TFT_BLACK);
-    setCoordinates(-0.1027, 0.924, 14, xmin, xmax, ymin, ymax);
     drawMandelbrot(xmin, xmax, ymin, ymax, 300);
     drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.1);
-    showZoomedArea(-0.1026, 0.92405, 15, xmin, xmax, ymin, ymax);
+    showZoomedArea(-0.1027, 0.924, 8, xmin, xmax, ymin, ymax);
     waitForButton(BTN_A);
 
     display.fillScreen(TFT_BLACK);
-    setCoordinates(-0.1026, 0.92405, 15, xmin, xmax, ymin, ymax);
+    setCoordinates(-0.1027, 0.924, 8, xmin, xmax, ymin, ymax);
+    drawMandelbrot(xmin, xmax, ymin, ymax, 300);
+    drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.1);
+    showZoomedArea(-0.1026, 0.92405, 8, xmin, xmax, ymin, ymax);
+    waitForButton(BTN_A);
+
+    display.fillScreen(TFT_BLACK);
+    setCoordinates(-0.1026, 0.92405, 8, xmin, xmax, ymin, ymax);
     drawMandelbrot(xmin, xmax, ymin, ymax, 300);
     drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.1);
     waitForButton(BTN_A);
