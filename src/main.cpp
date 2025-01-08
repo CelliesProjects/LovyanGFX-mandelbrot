@@ -1,10 +1,13 @@
 #include <LGFX_AUTODETECT.hpp>
 #include <LovyanGFX.hpp>
+#include <SD.h>
+#include <SPI.h>
 
 void drawMandelbrot(float xmin, float xmax, float ymin, float ymax, int maxIterations);
 void drawCoordinateAxes(float xmin, float xmax, float ymin, float ymax, float ticks);
 void showZoomedArea(float x, float y, float zoomfactor, float xmin, float xmax, float ymin, float ymax);
 void setCoordinates(float x, float y, float zoomFactor, float &xmin, float &xmax, float &ymin, float &ymax);
+void saveScreenshot(const char* filename);
 
 LGFX display;
 
@@ -34,6 +37,7 @@ void loop()
     drawMandelbrot(xmin, xmax, ymin, ymax, 300);
     drawCoordinateAxes(xmin, xmax, ymin, ymax, 1);
     showZoomedArea(-0.1, 0.95, 5, xmin, xmax, ymin, ymax);
+    saveScreenshot("/mandelbrot.bmp");
     waitForButton(BTN_A);
 
     display.fillScreen(TFT_BLACK);
@@ -216,4 +220,70 @@ void drawMandelbrot(float xmin, float xmax, float ymin, float ymax, int maxItera
             }
         }
     }
+}
+
+void saveScreenshot(const char* filename)
+{
+    if (!SD.begin(SS))
+    {
+        log_e("SD Card initialization failed!");
+        return;
+    }
+
+    File file = SD.open(filename, FILE_WRITE);
+    if (!file)
+    {
+        log_e("Failed to open file for writing!");
+        return;
+    }
+
+    // BMP header (54 bytes)
+    uint16_t bfType = 0x4D42;  // "BM"
+    uint32_t bfSize = 54 + display.width() * display.height() * 2;  // Header + pixel data
+    uint16_t bfReserved = 0;
+    uint32_t bfOffBits = 54;  // Offset to pixel data
+
+    uint32_t biSize = 40;  // Info header size
+    int32_t biWidth = display.width();
+    int32_t biHeight = -display.height();  // Negative to flip vertically
+    uint16_t biPlanes = 1;
+    uint16_t biBitCount = 16;  // RGB565 format
+    uint32_t biCompression = 0;
+    uint32_t biSizeImage = display.width() * display.height() * 2;
+    int32_t biXPelsPerMeter = 0;
+    int32_t biYPelsPerMeter = 0;
+    uint32_t biClrUsed = 0;
+    uint32_t biClrImportant = 0;
+
+    // Write BMP header
+    file.write((uint8_t*)&bfType, 2);
+    file.write((uint8_t*)&bfSize, 4);
+    file.write((uint8_t*)&bfReserved, 2);
+    file.write((uint8_t*)&bfReserved, 2);
+    file.write((uint8_t*)&bfOffBits, 4);
+
+    file.write((uint8_t*)&biSize, 4);
+    file.write((uint8_t*)&biWidth, 4);
+    file.write((uint8_t*)&biHeight, 4);
+    file.write((uint8_t*)&biPlanes, 2);
+    file.write((uint8_t*)&biBitCount, 2);
+    file.write((uint8_t*)&biCompression, 4);
+    file.write((uint8_t*)&biSizeImage, 4);
+    file.write((uint8_t*)&biXPelsPerMeter, 4);
+    file.write((uint8_t*)&biYPelsPerMeter, 4);
+    file.write((uint8_t*)&biClrUsed, 4);
+    file.write((uint8_t*)&biClrImportant, 4);
+
+    // Write pixel data
+    for (int y = 0; y < display.height(); y++)
+    {
+        for (int x = 0; x < display.width(); x++)
+        {
+            uint16_t color = display.readPixel(x, y);  // Read pixel color (RGB565 format)
+            file.write((uint8_t*)&color, 2);
+        }
+    }
+
+    file.close();
+    log_i("Screenshot saved!");
 }
