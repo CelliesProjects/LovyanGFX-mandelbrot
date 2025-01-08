@@ -1,14 +1,11 @@
 #include <LGFX_AUTODETECT.hpp>
 #include <LovyanGFX.hpp>
 
-// Function declarations
 void drawMandelbrot(float xmin, float xmax, float ymin, float ymax, int maxIterations);
 void drawCoordinateAxes(float xmin, float xmax, float ymin, float ymax, float ticks);
-void drawZoomedMandelbrot(float xmin, float xmax, float ymin, float ymax, int maxIterations, float ticks);
 void showZoomedArea(float x, float y, float zoomfactor, float xmin, float xmax, float ymin, float ymax);
 void setCoordinates(float x, float y, float zoomFactor, float &xmin, float &xmax, float &ymin, float &ymax);
 
-// Global objects
 LGFX display;
 
 const int32_t BTN_A = GPIO_NUM_39;
@@ -86,13 +83,9 @@ void setCoordinates(float x, float y, float zoomFactor, float &xmin, float &xmax
 
     // Ensure the aspect ratio is preserved
     if (display.width() > display.height())
-    {
         zoomedWidth = zoomedHeight * display.width() / display.height();
-    }
     else
-    {
         zoomedHeight = zoomedWidth * display.height() / display.width();
-    }
 
     // Set the new bounds centered around (x, y)
     xmin = x - zoomedWidth / 2;
@@ -112,13 +105,9 @@ void showZoomedArea(float x, float y, float zoomfactor, float xmin, float xmax, 
 
     // Ensure the aspect ratio is preserved
     if (width > height)
-    {
         zoomedWidth = zoomedHeight * width / height;
-    }
     else
-    {
         zoomedHeight = zoomedWidth * height / width;
-    }
 
     // Calculate the bounds of the zoomed area in the complex plane
     float zoomXmin = x - zoomedWidth / 2;
@@ -137,18 +126,6 @@ void showZoomedArea(float x, float y, float zoomfactor, float xmin, float xmax, 
 
     // Draw the rectangle
     display.drawRect(rectX1, rectY2, rectX2 - rectX1, rectY1 - rectY2, TFT_RED);
-}
-
-// Utility function to map Mandelbrot parameters, draw, and wait for input
-void drawZoomedMandelbrot(float xmin, float xmax, float ymin, float ymax, int maxIterations, float ticks)
-{
-    display.fillScreen(TFT_BLACK); // Clear the screen
-    drawMandelbrot(xmin, xmax, ymin, ymax, maxIterations);
-    drawCoordinateAxes(xmin, xmax, ymin, ymax, ticks);
-
-    // Wait for button press
-    while (digitalRead(BTN_A))
-        delay(10);
 }
 
 uint16_t getColorFromIteration(int iteration, int maxIterations)
