@@ -11,19 +11,39 @@ void saveScreenshot(const char* filename);
 
 LGFX display;
 
-const int32_t BTN_A = GPIO_NUM_39;
-
-void waitForButton(int32_t button)
+#ifdef LGFX_M5STACK
+void waitForButton()
 {
-    while (digitalRead(button))
+    while (digitalRead(GPIO_NUM_39))
         delay(10);
 }
+#endif
+
+#ifdef LGFX_ESP32_S3_BOX_LITE
+const int ADC_PIN = 1;
+const float BUTTON_THRESHOLD = 3.0; // Voltage threshold for detecting a press
+
+void waitForButton() {
+    while (true) {
+        int adcValue = analogRead(ADC_PIN);
+
+        float voltage = adcValue * 3.6 / 4095;
+        log_i("voltage: %.3f", voltage);
+        if (voltage < BUTTON_THRESHOLD) {
+            break;
+        }
+        delay(10);
+    }
+}
+#endif
 
 void setup()
 {
     display.init();
     display.setRotation(1); // Adjust rotation as needed
-    pinMode(BTN_A, INPUT_PULLUP);
+#ifdef LGFX_M5STACK
+    pinMode(GPIO_NUM_39, INPUT_PULLUP);
+#endif    
 }
 
 void loop()
@@ -38,41 +58,41 @@ void loop()
     drawCoordinateAxes(xmin, xmax, ymin, ymax, 1);
     showZoomedArea(-0.1, 0.95, 5, xmin, xmax, ymin, ymax);
     //saveScreenshot("/mandelbrot.bmp");
-    waitForButton(BTN_A);
+    waitForButton();
 
     display.fillScreen(TFT_BLACK);
     setCoordinates(-0.1, 0.95, 5, xmin, xmax, ymin, ymax);
     drawMandelbrot(xmin, xmax, ymin, ymax, 300);
     drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.1);
     showZoomedArea(-0.1, 0.92, 8, xmin, xmax, ymin, ymax);
-    waitForButton(BTN_A);
+    waitForButton();
 
     display.fillScreen(TFT_BLACK);
     setCoordinates(-0.1, 0.95, 8, xmin, xmax, ymin, ymax);
     drawMandelbrot(xmin, xmax, ymin, ymax, 300);
     drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.1);
     showZoomedArea(-0.102, 0.924, 12, xmin, xmax, ymin, ymax);
-    waitForButton(BTN_A);
+    waitForButton();
 
     display.fillScreen(TFT_BLACK);
     setCoordinates(-0.102, 0.924, 12, xmin, xmax, ymin, ymax);
     drawMandelbrot(xmin, xmax, ymin, ymax, 300);
     drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.1);
     showZoomedArea(-0.1027, 0.924, 8, xmin, xmax, ymin, ymax);
-    waitForButton(BTN_A);
+    waitForButton();
 
     display.fillScreen(TFT_BLACK);
     setCoordinates(-0.1027, 0.924, 8, xmin, xmax, ymin, ymax);
     drawMandelbrot(xmin, xmax, ymin, ymax, 300);
     drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.1);
     showZoomedArea(-0.1026, 0.92405, 8, xmin, xmax, ymin, ymax);
-    waitForButton(BTN_A);
+    waitForButton();
 
     display.fillScreen(TFT_BLACK);
     setCoordinates(-0.1026, 0.92405, 8, xmin, xmax, ymin, ymax);
     drawMandelbrot(xmin, xmax, ymin, ymax, 300);
     drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.1);
-    waitForButton(BTN_A);
+    waitForButton();
 }
 
 void setCoordinates(float x, float y, float zoomFactor, float &xmin, float &xmax, float &ymin, float &ymax)
