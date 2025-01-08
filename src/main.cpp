@@ -13,11 +13,6 @@ LGFX display;
 
 const int32_t BTN_A = GPIO_NUM_39;
 
-float xmin = -2.5;
-float xmax = 1.0;
-float ymin = -1.5;
-float ymax = 1.5;
-
 void waitForButton(int32_t button)
 {
     while (digitalRead(button))
@@ -28,9 +23,17 @@ void setup()
 {
     display.init();
     display.setRotation(1); // Adjust rotation as needed
-
     pinMode(BTN_A, INPUT_PULLUP);
+}
 
+void loop()
+{
+    float xmin = -2.5;
+    float xmax = 1.0;
+    float ymin = -1.5;
+    float ymax = 1.5;
+
+    display.fillScreen(TFT_BLACK);
     drawMandelbrot(xmin, xmax, ymin, ymax, 100);
     drawCoordinateAxes(xmin, xmax, ymin, ymax, 1);
     showZoomedArea(-0.1, 0.95, 5, xmin, xmax, ymin, ymax);
@@ -54,14 +57,21 @@ void setup()
     setCoordinates(-0.102, 0.924, 12, xmin, xmax, ymin, ymax);
     drawMandelbrot(xmin, xmax, ymin, ymax, 200);
     drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.1);
-    showZoomedArea(-0.102, 0.924, 16, xmin, xmax, ymin, ymax);
+    showZoomedArea(-0.1027, 0.924, 14, xmin, xmax, ymin, ymax);
     waitForButton(BTN_A);
 
-}
+    display.fillScreen(TFT_BLACK);
+    setCoordinates(-0.1027, 0.924, 14, xmin, xmax, ymin, ymax);
+    drawMandelbrot(xmin, xmax, ymin, ymax, 300);
+    drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.1);
+    showZoomedArea(-0.1026, 0.92405, 15, xmin, xmax, ymin, ymax);
+    waitForButton(BTN_A);
 
-void loop()
-{
-    // Nothing to update in the loop for static display
+    display.fillScreen(TFT_BLACK);
+    setCoordinates(-0.1026, 0.92405, 15, xmin, xmax, ymin, ymax);
+    drawMandelbrot(xmin, xmax, ymin, ymax, 300);
+    drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.1);
+    waitForButton(BTN_A);
 }
 
 void setCoordinates(float x, float y, float zoomFactor, float &xmin, float &xmax, float &ymin, float &ymax)
