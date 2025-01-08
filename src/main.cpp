@@ -4,12 +4,25 @@
 // Function declarations
 void drawMandelbrot(float xmin, float xmax, float ymin, float ymax, int maxIterations);
 void drawCoordinateAxes(float xmin, float xmax, float ymin, float ymax, float ticks);
-void displayMandelbrot(float xmin, float xmax, float ymin, float ymax, int maxIterations, float ticks);
+void drawZoomedMandelbrot(float xmin, float xmax, float ymin, float ymax, int maxIterations, float ticks);
+void showZoomedArea(float x, float y, float zoomfactor, float xmin, float xmax, float ymin, float ymax);
+void setCoordinates(float x, float y, float zoomFactor, float &xmin, float &xmax, float &ymin, float &ymax);
 
 // Global objects
 LGFX display;
 
 const int32_t BTN_A = GPIO_NUM_39;
+
+float xmin = -2.5;
+float xmax = 1.0;
+float ymin = -1.5;
+float ymax = 1.5;
+
+void waitForButton(int32_t button)
+{
+    while (digitalRead(button))
+        delay(10);
+}
 
 void setup()
 {
@@ -18,11 +31,32 @@ void setup()
 
     pinMode(BTN_A, INPUT_PULLUP);
 
-    // Initial Mandelbrot parameters and zooms
-    displayMandelbrot(-2.5, 1.0, -1.5, 1.5, 100, 0.5);
-    displayMandelbrot(-1.5, 0.75, 0.0, 1.93, 100, 0.5);
-    displayMandelbrot(-0.5, 0.5, 0.5, 1.36, 100, 0.25);
-    displayMandelbrot(-0.25, 0.15, 0.75, 1.09, 100, 0.25);
+    drawMandelbrot(xmin, xmax, ymin, ymax, 100);
+    drawCoordinateAxes(xmin, xmax, ymin, ymax, 1);
+    showZoomedArea(-0.1, 0.95, 5, xmin, xmax, ymin, ymax);
+    waitForButton(BTN_A);
+
+    display.fillScreen(TFT_BLACK);
+    setCoordinates(-0.1, 0.95, 5, xmin, xmax, ymin, ymax);
+    drawMandelbrot(xmin, xmax, ymin, ymax, 100);
+    drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.1);
+    showZoomedArea(-0.1, 0.92, 8, xmin, xmax, ymin, ymax);
+    waitForButton(BTN_A);
+
+    display.fillScreen(TFT_BLACK);
+    setCoordinates(-0.1, 0.95, 8, xmin, xmax, ymin, ymax);
+    drawMandelbrot(xmin, xmax, ymin, ymax, 100);
+    drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.1);
+    showZoomedArea(-0.102, 0.924, 12, xmin, xmax, ymin, ymax);
+    waitForButton(BTN_A);
+
+    display.fillScreen(TFT_BLACK);
+    setCoordinates(-0.102, 0.924, 12, xmin, xmax, ymin, ymax);
+    drawMandelbrot(xmin, xmax, ymin, ymax, 200);
+    drawCoordinateAxes(xmin, xmax, ymin, ymax, 0.1);
+    showZoomedArea(-0.102, 0.924, 16, xmin, xmax, ymin, ymax);
+    waitForButton(BTN_A);
+
 }
 
 void loop()
@@ -30,10 +64,75 @@ void loop()
     // Nothing to update in the loop for static display
 }
 
-// Utility function to map Mandelbrot parameters, draw, and wait for input
-void displayMandelbrot(float xmin, float xmax, float ymin, float ymax, int maxIterations, float ticks)
+void setCoordinates(float x, float y, float zoomFactor, float &xmin, float &xmax, float &ymin, float &ymax)
 {
-    display.fillScreen(TFT_BLACK);             // Clear the screen
+    // Calculate the current width and height of the complex plane
+    float currentWidth = xmax - xmin;
+    float currentHeight = ymax - ymin;
+
+    // Calculate the new width and height after applying the zoom factor
+    float zoomedWidth = currentWidth / zoomFactor;
+    float zoomedHeight = currentHeight / zoomFactor;
+
+    // Ensure the aspect ratio is preserved
+    if (display.width() > display.height())
+    {
+        zoomedWidth = zoomedHeight * display.width() / display.height();
+    }
+    else
+    {
+        zoomedHeight = zoomedWidth * display.height() / display.width();
+    }
+
+    // Set the new bounds centered around (x, y)
+    xmin = x - zoomedWidth / 2;
+    xmax = x + zoomedWidth / 2;
+    ymin = y - zoomedHeight / 2;
+    ymax = y + zoomedHeight / 2;
+}
+
+void showZoomedArea(float x, float y, float zoomfactor, float xmin, float xmax, float ymin, float ymax)
+{
+    int width = display.width();
+    int height = display.height();
+
+    // Calculate the size of the zoomed area in the complex plane
+    float zoomedWidth = (xmax - xmin) / zoomfactor;
+    float zoomedHeight = (ymax - ymin) / zoomfactor;
+
+    // Ensure the aspect ratio is preserved
+    if (width > height)
+    {
+        zoomedWidth = zoomedHeight * width / height;
+    }
+    else
+    {
+        zoomedHeight = zoomedWidth * height / width;
+    }
+
+    // Calculate the bounds of the zoomed area in the complex plane
+    float zoomXmin = x - zoomedWidth / 2;
+    float zoomXmax = x + zoomedWidth / 2;
+    float zoomYmin = y - zoomedHeight / 2;
+    float zoomYmax = y + zoomedHeight / 2;
+
+    // Map the zoomed area's bounds to display coordinates
+    float scaleX = (xmax - xmin) / width;
+    float scaleY = (ymax - ymin) / height;
+
+    int rectX1 = (zoomXmin - xmin) / scaleX;
+    int rectX2 = (zoomXmax - xmin) / scaleX;
+    int rectY1 = height - (zoomYmin - ymin) / scaleY;
+    int rectY2 = height - (zoomYmax - ymin) / scaleY;
+
+    // Draw the rectangle
+    display.drawRect(rectX1, rectY2, rectX2 - rectX1, rectY1 - rectY2, TFT_RED);
+}
+
+// Utility function to map Mandelbrot parameters, draw, and wait for input
+void drawZoomedMandelbrot(float xmin, float xmax, float ymin, float ymax, int maxIterations, float ticks)
+{
+    display.fillScreen(TFT_BLACK); // Clear the screen
     drawMandelbrot(xmin, xmax, ymin, ymax, maxIterations);
     drawCoordinateAxes(xmin, xmax, ymin, ymax, ticks);
 
@@ -65,7 +164,7 @@ void drawCoordinateAxes(float xmin, float xmax, float ymin, float ymax, float ti
     float scaleX = (xmax - xmin) / width;
     float scaleY = (ymax - ymin) / height;
 
-    int realAxisY = (0 - ymin) / scaleY;
+    int realAxisY = height - (0 - ymin) / scaleY;
     display.drawLine(0, realAxisY, width, realAxisY, TFT_DARKGRAY); // Draw horizontal axis (real axis)
 
     int imaginaryAxisX = (0 - xmin) / scaleX;
@@ -78,17 +177,17 @@ void drawCoordinateAxes(float xmin, float xmax, float ymin, float ymax, float ti
         display.drawLine(tickX, realAxisY - 5, tickX, realAxisY + 5, TFT_DARKGRAY);
 
         if (x != 0) // Avoid overlapping the origin
-            display.drawFloat(x, 2, tickX - 15, realAxisY + 10, &DejaVu9);
+            display.drawFloat(x, 2, tickX - 15, realAxisY - 15, &DejaVu9);
     }
 
     // Draw tick marks on the imaginary axis
     for (float y = ymin; y <= ymax; y += ticks)
     {
-        int tickY = (y - ymin) / scaleY;
+        int tickY = height - (y - ymin) / scaleY;
         display.drawLine(imaginaryAxisX - 5, tickY, imaginaryAxisX + 5, tickY, TFT_DARKGRAY);
 
         if (y != 0) // Avoid overlapping the origin
-            display.drawFloat(y, 2, imaginaryAxisX + 10, tickY - 5, &DejaVu9);
+            display.drawString(String(y) + "i", imaginaryAxisX + 10, tickY - 5, &DejaVu9);
     }
 }
 
@@ -108,7 +207,7 @@ void drawMandelbrot(float xmin, float xmax, float ymin, float ymax, int maxItera
         {
             // Map the pixel coordinates to the complex plane
             float x0 = xmin + px * scaleX;
-            float y0 = ymin + py * scaleY;
+            float y0 = ymax - py * scaleY; // Invert the y-axis mapping
             float x = 0.0;
             float y = 0.0;
             int iteration = 0;
