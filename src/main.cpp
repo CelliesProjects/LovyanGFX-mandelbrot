@@ -73,6 +73,13 @@ void loop()
     float ymin = -1.5;
     float ymax = 1.5;
 
+#if defined(LGFX_ESP32_8048S050N)
+    xmin = -1.5;
+    xmax = 0.5;
+    ymin = -1.6;
+    ymax = 1.6;
+#endif
+
     display.fillScreen(TFT_BLACK);
     drawMandelbrot(xmin, xmax, ymin, ymax, 300);
     drawCoordinateAxes(xmin, xmax, ymin, ymax, 1);
