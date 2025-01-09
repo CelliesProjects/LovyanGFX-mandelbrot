@@ -1,4 +1,11 @@
+#ifdef LGFX_ESP32_8048S050N
+#include "LGFX_ESP32_8048S050N.hpp"
+#endif
+
+#if defined(LGFX_M5STACK) || defined(LGFX_ESP32_S3_BOX_LITE)
 #include <LGFX_AUTODETECT.hpp>
+#endif
+
 #include <LovyanGFX.hpp>
 #include <SD.h>
 #include <SPI.h>
@@ -12,24 +19,38 @@ void saveScreenshot(const char* filename);
 LGFX display;
 
 #ifdef LGFX_M5STACK
+constexpr int A_BTN = GPIO_NUM_39;
 void waitForButton()
 {
-    while (digitalRead(GPIO_NUM_39))
+    while (digitalRead(A_BTN))
         delay(10);
 }
 #endif
 
 #ifdef LGFX_ESP32_S3_BOX_LITE
-const int ADC_PIN = 1;
+const int ADC_PIN = GPIO_NUM_1;
 const float BUTTON_THRESHOLD = 3.0; // Voltage threshold for detecting a press
 
 void waitForButton() {
     while (true) {
         int adcValue = analogRead(ADC_PIN);
-
         float voltage = adcValue * 3.6 / 4095;
-        log_i("voltage: %.3f", voltage);
+        log_d("voltage: %.3f", voltage);
         if (voltage < BUTTON_THRESHOLD) {
+            break;
+        }
+        delay(10);
+    }
+}
+#endif
+
+#if defined(LGFX_ESP32_8048S050N)
+void waitForButton() {
+    log_i("Waiting for touch on 8048S050N...");
+    while (true) {
+        // Replace with your touch detection logic
+         uint16_t touchX, touchY;
+        if (display.getTouch(&touchX, &touchY)) {
             break;
         }
         delay(10);
@@ -42,7 +63,7 @@ void setup()
     display.init();
     display.setRotation(1); // Adjust rotation as needed
 #ifdef LGFX_M5STACK
-    pinMode(GPIO_NUM_39, INPUT_PULLUP);
+    pinMode(A_BTN, INPUT_PULLUP);
 #endif    
 }
 
