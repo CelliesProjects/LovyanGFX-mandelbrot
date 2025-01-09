@@ -48,7 +48,6 @@ void waitForButton() {
 void waitForButton() {
     log_i("Waiting for touch on 8048S050N...");
     while (true) {
-        // Replace with your touch detection logic
          uint16_t touchX, touchY;
         if (display.getTouch(&touchX, &touchY)) {
             break;
